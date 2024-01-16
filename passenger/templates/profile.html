@@ -1,0 +1,30 @@
+{% extends 'base.html' %} 
+{% load crispy_forms_tags  %}
+{% block head_title %}Profile{% endblock %}
+
+{% block content %}
+<div class="text-center">
+    <h1>{{request.user.username}}</h1>
+</div>
+<div class="container gap-5 m-auto border border-danger mt-3">
+    <div class=" text-start ">
+        <div> <h2>Username: {{request.user.username}} </h2> </div>
+        <div> <h2>First Name: {{request.user.first_name}}</h2>  </div>
+        <div> <h2>Last Name: {{request.user.last_name}} </h2> </div>
+        <div> <h2>Email: {{request.user.email}} </h2> </div>
+        <div> <h2>Nid: {{request.user.account.nid}} </h2> </div>
+    </div>
+    <div class="mt-2 mb-2">
+        <a href="{% url 'edit_profile' user.id %}" class="btn btn-primary">Edit Profile</a>
+        <a href="{% url 'password_change' %}" class="btn btn-primary">changge Password</a>
+    </div>
+</div>
+
+
+{% comment %}{% url 'edit/<int:id>' %} <form method="POST" style="width: 50%; margin:auto">
+    {% csrf_token %}
+    {{form | crispy}}
+    <button type="submit" class="btn btn-primary">Submit</button>
+</form> {% endcomment %}
+
+{% endblock %}

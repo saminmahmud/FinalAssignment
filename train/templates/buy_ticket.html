@@ -1,0 +1,51 @@
+{% extends 'base.html' %} {% load crispy_forms_tags %} {% block head_title %}Buy
+Ticket{% endblock %} {% block content %}
+
+<div class="container gap-5 m-auto border border-danger mt-3">
+  <div class="container text-start mb-3">
+    <div><h2>{{train.name}}</h2></div>
+    <h5>Seat:</h5>
+    <strong>click to buy ticket: </strong> <br />
+    {% for seat in seats %} {% if seat.active %}
+    <a href="{% url 'buy_ticket' seat.id %}" class="btn btn-danger disabled"
+      >{{seat.seat_number}}</a
+    >
+    {% else %}
+    <a href="{% url 'buy' train.id seat.id %}" class="btn btn-primary"
+      >{{seat.seat_number}}</a
+    >
+    {% endif %} {% endfor %}
+  </div>
+</div>
+
+
+<div class="container">
+    <div class="container">
+        <div class="container w-50">
+
+    <form
+      method="post"
+      class="m-2 bg-secondary border border-danger text-white p-3"
+    >
+      <h4 class="mb-3">Add Comment:</h4>
+      {% csrf_token %}
+      <div class="mb-3">{{comment_form | crispy}}</div>
+      <button type="submit" class="btn btn-primary mt-3">Submit</button>
+    </form>
+
+  <div class="card">
+    <h5 class="p-3">Comment : {{comments | length}}</h5>
+    {% for comment in comments %}
+    <div class="card-body border m-2">
+      <p><b>{{comment.name}}</b> {{comment.created_on}}</p>
+      <p>{{comment.body}}</p>
+    </div>
+    {% endfor %}
+  </div>
+
+</div>
+</div>
+</div>
+
+  {% endblock %}
+
