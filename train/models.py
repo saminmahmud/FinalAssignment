@@ -1,9 +1,11 @@
 from django.db import models
+from django.core.validators import MaxValueValidator
 from passenger.models import UserAccount
 from station.models import Station
 
 
 class Train(models.Model):
+    image = models.ImageField(upload_to='train/media/', null=True, blank=True)
     name = models.CharField(max_length=100)
     start_station = models.ForeignKey(Station, related_name="start_station" , null=True, blank=True, on_delete=models.CASCADE)
     end_station =  models.ForeignKey(Station, related_name="end_station" , null=True, blank=True, on_delete=models.CASCADE)
@@ -18,7 +20,7 @@ class Seat(models.Model):
     def __str__(self) :
         return f"{self.train.name} - {self.seat_number} - {self.active}"
 
-class Shedule(models.Model):
+class Schedule(models.Model):
     train = models.ForeignKey(Train, on_delete=models.CASCADE)
     train_date = models.CharField(max_length=100)
 
@@ -33,25 +35,20 @@ class Review(models.Model):
 
     def __str__(self):
         return f"Reviews by {self.name}"
+    
 
 
-# class BuyTicket(models.Model):
-#     train = models.ForeignKey(Train, on_delete=models.CASCADE)
-#     account = models.ForeignKey(UserAccount,  on_delete = models.CASCADE)
-#     seat = models.ManyToManyField(Seat)
+class AddTrain(models.Model):
+    image = models.ImageField(upload_to='train/media/', null=True, blank=True)
+    train_name = models.CharField(max_length=30)
+    start_station = models.ForeignKey(Station, on_delete=models.CASCADE, related_name='start_trains')
+    end_station = models.ForeignKey(Station, on_delete=models.CASCADE, related_name='end_trains')
+    price = models.DecimalField(default=0, max_digits=12, decimal_places=2)
+    total_number_of_seats = models.IntegerField(default=0, validators=[MaxValueValidator(999)])
+    train_date = models.CharField(max_length=50)
 
-#     def __str__(self):
-#         return f"Reviews by {self.account.id} __ {self.train.name}"
+    def __str__(self):
+        return self.train_name
+    
 
-# STAR_CHOICES = [
-#     ('⭐', '⭐'),
-#     ('⭐⭐', '⭐⭐'),
-#     ('⭐⭐⭐', '⭐⭐⭐'),
-#     ('⭐⭐⭐⭐', '⭐⭐⭐⭐'),
-#     ('⭐⭐⭐⭐⭐', '⭐⭐⭐⭐⭐'),
-# ]
-# class ReviewAgain(models.Model):
-#     train = models.ForeignKey(Train, on_delete=models.CASCADE)
-#     name = models.CharField(max_length=30)
-#     rating = models.CharField(choices = STAR_CHOICES, max_length = 10)
     

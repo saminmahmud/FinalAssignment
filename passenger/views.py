@@ -6,6 +6,7 @@ from django.urls import reverse_lazy
 from django.contrib.auth.views import LoginView, LogoutView
 from django.views.generic import FormView
 from django.views.generic import  UpdateView,DetailView
+from django.views import View
 from .models import UserAccount
 from django.contrib.auth.models import User
 from django.contrib import messages
@@ -25,22 +26,23 @@ from django.template.loader import render_to_string
 class UserRegistrationView(FormView):
     template_name = 'register.html'
     form_class = UserAccountForm
-    success_url = reverse_lazy('home')
+    # success_url = reverse_lazy('index')
+    success_url = reverse_lazy('login')
 
     def form_valid(self, form):
         user = form.save()
 
         token = default_token_generator.make_token(user)
         uid = urlsafe_base64_encode(force_bytes(user.pk))
-        confirm_link = f"http://127.0.0.1:8000/account/active/{uid}/{token}"
-
+        # confirm_link = f"http://127.0.0.1:8000/account/active/{uid}/{token}"
+        confirm_link = f"https://bangladesh-railway-h8hw.onrender.com/account/active/{uid}/{token}"
         email_subject = "Confirm Your Email"
         email_body = render_to_string('confirm_email.html', {'link': confirm_link})
         email = EmailMultiAlternatives(email_subject, '', to=[user.email])
         email.attach_alternative(email_body, "text/html")
         email.send()
 
-        messages.success(self.request, 'Check your email for Email Verification')
+        messages.success(self.request, 'Check your email for Email Verification🎯')
         return super().form_valid(form)
 
 def activate(request, uid64, token):
@@ -62,7 +64,7 @@ def activate(request, uid64, token):
         return redirect('register')
 
 class UserLoginView(LoginView):
-    template_name = 'register.html'
+    template_name = 'login.html'
     def get_success_url(self):
         return reverse_lazy('home')
 
@@ -72,10 +74,29 @@ class UserLoginView(LoginView):
 #             logout(self.request)
 #         return reverse_lazy('home')
 
-class UserLogoutView(LogoutView):
-    def get_success_url(self):
-        return reverse_lazy('home')
+# class UserLogoutView(LogoutView):
+#     def get_success_url(self):
+#         return reverse_lazy('home')
 
+def UserLogoutView(request):
+    logout(request)
+    return redirect('index')
+
+
+class UserAccountUpdateView(View):
+    template_name = 'profile.html'
+
+    def get(self, request):
+        form = UserAccountChangeForm(instance=request.user)
+        return render(request, self.template_name, {'form': form})
+
+    def post(self, request):
+        form = UserAccountChangeForm(request.POST, instance=request.user)
+        if form.is_valid():
+            form.save()
+            return redirect('profile')  # Redirect to the user's profile page
+        return render(request, self.template_name, {'form': form})
+    
 @login_required
 def UserProfileView(request):
     return render(request, 'profile.html')
@@ -96,7 +117,7 @@ def passChange(request):
         if form.is_valid():
             form.save()
             update_session_auth_hash(request, form.user)
-            messages.success(request, 'Password Change Successfully')
+            messages.success(request, 'Password Change Successfully😀')
             return redirect('profile')
     else:
         form = SetPasswordForm(request.user)
@@ -110,7 +131,7 @@ from .models import UserAccount
 from .forms import DepositForm
 
 @login_required
-def deposite_money(request):
+def deposit_money(request):
     if request.method == 'POST':
         form = DepositForm(request.POST)
         if form.is_valid():
@@ -131,9 +152,9 @@ def deposite_money(request):
             print(f"new_balance: {account.balance}")
             account.save(update_fields=['balance'])
 
-            messages.success(request, 'Deposit successful!')
+            messages.success(request, 'Deposit successful😀')
             return redirect('home')
     else:
         form = DepositForm()
 
-    return render(request, 'deposite.html', {'form': form})
+    return render(request, 'deposit.html', {'form': form})
